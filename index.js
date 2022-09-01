@@ -5,7 +5,20 @@ const csvtojson = require("csvtojson");
 const OSpoint = require("ospoint");
 
 const readdir = util.promisify(fs.readdir);
+const writeFile = util.promisify(fs.writeFile);
 
+const headers = [
+  "postcode",
+  "Positional_quality_indicator",
+  "eastings",
+  "northings",
+  "Country_code",
+  "NHS_regional_HA_code",
+  "NHS_HA_code",
+  "Admin_county_code",
+  "Admin_district_code",
+  "Admin_ward_code",
+];
 const propertyTypes = ["detached", "semi-detatched", "terraced"];
 const epcRatings = {
   a: {
@@ -30,17 +43,16 @@ const epcRatings = {
   },
   f: {
     min: 21,
-    max: 38
+    max: 38,
   },
   g: {
     min: 1,
-    max: 20
+    max: 20,
   },
 };
 
-const fuels = [['electric'], ['electric', 'gas'], ['gas']]
-const meterType = ['Smart', 'Legacy']
-
+const fuels = [["electric"], ["electric", "gas"], ["gas"]];
+const meterType = ["Smart", "Legacy"];
 
 function getRandomInt(min, max) {
   min = Math.ceil(min);
@@ -48,33 +60,26 @@ function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-
-
-const headers = [
-  "postcode",
-  "Positional_quality_indicator",
-  "eastings",
-  "northings",
-  "Country_code",
-  "NHS_regional_HA_code",
-  "NHS_HA_code",
-  "Admin_county_code",
-  "Admin_district_code",
-  "Admin_ward_code",
-];
-
+function getRandomItem(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
 
 async function getJsonFromFile(fileName) {
   const addresses = await csvtojson({ headers }).fromFile(fileName);
-  
-  return addresses.map(({ postcode, eastings, northings }) => {
-    const { latitude, longitude } = new OSpoint(northings, eastings).toWGS84();
-    return {
-      postalCode: postcode,
-      lat: latitude,
-      lon: longitude,
-    };
-  });
+
+  return addresses
+    .filter((_, index) => index % 2)
+    .map(({ postcode, eastings, northings }) => {
+      const { latitude, longitude } = new OSpoint(
+        northings,
+        eastings
+      ).toWGS84();
+      return {
+        postalCode: postcode,
+        lat: latitude,
+        lon: longitude,
+      };
+    });
 }
 
 function transformAddress(address) {
@@ -90,43 +95,56 @@ function transformAddress(address) {
 }
 
 function generateProperty() {
-  const type = propertyTypes[Math.floor(Math.random() * propertyTypes.length)];
-  const epcRatingKeys = Object.keys(epcRatings )
-  const ratingKey = epcRatingKeys[Math.floor(Math.random() * epcRatingKeys.length)];
-  const {min, max} = epcRatings[ratingKey]
-  const epcRatingValue = getRandomInt(min, max)
+  const type = getRandomItem(propertyTypes);
+  const epcRatingKeys = Object.keys(epcRatings);
+  const ratingKey = getRandomItem(epcRatingKeys);
+  const { min, max } = epcRatings[ratingKey];
+  const epcRatingValue = getRandomInt(min, max);
   return {
     type,
     epc: {
       current: {
         rating: ratingKey,
-        value: epcRatingValue
+        value: epcRatingValue,
       },
     },
   };
 }
 
+function generateFuel() {
+  return getRandomItem(fuels);
+}
 
+function generateMeterType() {
+  return getRandomItem(meterType);
+}
+
+function generateCreditScore() {
+  return getRandomInt(0, 999);
+}
 async function main() {
   const fileNames = await readdir("./CSV");
-  console.log('reading file...');
+  console.log("reading file...");
   const jsonArr = fileNames.map(async (name) => {
-    // console.log(name);
     return await getJsonFromFile(`./CSV/${name}`);
   });
   const json2D = await Promise.all(jsonArr);
   const latLons = json2D.flat();
-  
-  console.log('generating addresses...');
+
+  console.log("generating addresses...");
   const addresses = latLons.map(transformAddress);
 
-
-  const withProperty = addresses.map(address => ({
+  const fullObjs = addresses.map((address) => ({
     address,
-    property: generateProperty()
-  }))
-  
-  console.log(withProperty);
+    property: generateProperty(),
+    fuels: generateFuel(),
+    meterType: generateMeterType(),
+    creditScore: generateCreditScore(),
+  }));
+
+  console.log("writing to file...");
+  await writeFile("./result.json", JSON.stringify(fullObjs, null, 2));
+  // fullObjs.forEach(console.log)
 }
 
 main();
