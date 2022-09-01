@@ -19,7 +19,7 @@ const headers = [
   "Admin_district_code",
   "Admin_ward_code",
 ];
-const propertyTypes = ["detached", "semi-detatched", "terraced"];
+const propertyTypes = ["detached", "semi-detached", "terraced"];
 const epcRatings = {
   a: {
     min: 92,
@@ -84,13 +84,11 @@ async function getJsonFromFile(fileName) {
 
 function transformAddress(address) {
   return {
-    address: {
       postalCode: address.postalCode,
       location: {
         lat: address.lat,
         lon: address.lon,
       },
-    },
   };
 }
 
@@ -122,6 +120,11 @@ function generateMeterType() {
 function generateCreditScore() {
   return getRandomInt(0, 999);
 }
+
+async function writeToFile(filename, content) {
+  return await writeFile(filename, JSON.stringify(content, null, 2));
+}
+
 async function main() {
   const fileNames = await readdir("./CSV");
   console.log("reading file...");
@@ -135,7 +138,7 @@ async function main() {
   const addresses = latLons.map(transformAddress);
 
   const fullObjs = addresses.map((address) => ({
-    address,
+    address ,
     property: generateProperty(),
     fuels: generateFuel(),
     meterType: generateMeterType(),
@@ -143,7 +146,17 @@ async function main() {
   }));
 
   console.log("writing to file...");
-  await writeFile("./result.json", JSON.stringify(fullObjs, null, 2));
+
+  await writeFile("./mock-data.json", JSON.stringify(fullObjs, null, 2));
+  
+  // for (let i = 0; i< fullObjs.length; i++) {
+  //   const obj = fullObjs[i]
+  //   console.log(i);
+  //   await writeToFile(`./results/${i}.json`, obj)
+  // }
+  
+  // await fullObjs.forEach(async (obj, i) => await writeToFile(`./results/${i}.json`, obj))
+
   // fullObjs.forEach(console.log)
 }
 
