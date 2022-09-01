@@ -1,135 +1,24 @@
 {
-  "accountId": "123",
-  "address": {
-      "town": "Penarth",
-      "county": "The Vale of Glamorgan",
-      "lsoa": "E01000002",
-      "localAuthority": "City Of London",
-      "postalCode": "CF64 2UX",
-      "lat": 122.121,
-      "lng": 31231.32
-  },
-  "property": {
-      "type": "detached",
-      "bedrooms": 3,
-      "occupants": 4,
-      "epc": {
-          "current": {
-              "rating": "D",
-              "value": 65
-          },
-          "potential": {
-              "rating": "C",
-              "value": 75
-          }
-      },
-      "constructionYear": 1990,
-      "floorArea": 100,
-      "glazing": "double",
-      "lowEnergyLighting": 86,
-      "hotWater": {
-          "type":"electric-immersion"
-      },
-      "floor": {
-          "type":"solid",
-          "insulation": 0
-      },
-      "walls": {
-          "type":"cavity",
-          "insulation": 0
-      },
-      "roof": {
-          "type":"pitched",
-          "insulation": 100 
-      },
-      "solarPVKw": 0,
-      "windKw": 0
-  },
-  "contracts": [
-      {
-          "fuelType": "Electricity",
-          "tariff": "Economy 7",
-          "tariffType": "fixed",
-          "paymentMethod": "Direct Debit",
-          "startDate": "2018-01-01",
-          "endDate": "2018-12-31",
-          "rates": {
-              "standingCharge": 12.2,
-              "unitRate": 0.1
-          }
-      },
-      {
-          "fuelType": "Gas",
-          "tariff": "Economy 7",
-          "tariffType": "variable",
-          "paymentMethod": "Direct Debit",
-          "startDate": "2018-01-01",
-          "rates": {
-              "standingCharge": 12.2,
-              "unitRate": 0.1
-          }
-      }
-  ],
-  "consumption": [
-      {
-          "fuelType": "Electricity",
-          "annual": {
-              "consumption": 1000,
-              "cost": 100
-          },
-          "winter": {
-              "consumption": 500,
-              "cost": 50
-          },
-          "autumn": {
-              "consumption": 250,
-              "cost": 25
-          },
-          "summer": {
-              "consumption": 250,
-              "cost": 25
-          },
-          "spring": {
-              "consumption": 0,
-              "cost": 0
-          }
-      },
-      {
-          "fuelType": "Gas",
-          "annual": {
-              "consumption": 1000,
-              "cost": 100
-          },
-          "winter": {
-              "consumption": 500,
-              "cost": 50
-          },
-          "autumn": {
-              "consumption": 250,
-              "cost": 25
-          },
-          "summer": {
-              "consumption": 250,
-              "cost": 25
-          },
-          "spring": {
-              "consumption": 0,
-              "cost": 0
-          }
-      }
-  ],
-  "meterType": "Smart",
-  "creditScore": 86,
-  "inArrears": false,
-  "deprivationDeciles": {
-      "mid": 5,
-      "income": 3,
-      "employment": 4,
-      "education": 5,
-      "health": 6,
-      "crime": 4,
-      "barriersToHousing": 7,
-      "livingEnvironment": 8   
-  } 
-  
+    "address": {
+        "region": "South Wales",
+        "postalCode": "CF64 2UX",
+        "location": {
+            "lat": 51.43673,
+            "lon": -3.18412
+        }
+    },
+    "property": {
+        "type": "detached",
+        "epc": {
+            "current": {
+                "rating": "D",
+                "value": 65
+            }
+        }
+    },
+    "fuels":[
+        "Electricity", "Gas"
+    ],
+    "meterType": "Smart",
+    "creditScore": 86
 }

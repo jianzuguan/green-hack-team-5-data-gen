@@ -10,6 +10,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "fast-csv": "^4.3.6"
+    "csvtojson": "^2.0.10",
+    "fast-csv": "^4.3.6",
+    "ospoint": "^0.2.1"
   }
 }

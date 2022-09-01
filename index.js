@@ -1,28 +1,25 @@
-// import { promises as fs } from "fs"
-// import fs from 'fs'
-const fs = require("fs");
-const csv = require("fast-csv");
+// const fs = require("fs");
+// const util = require("util");
+const util = require("node:util");
+const fs = require("node:fs");
 
-async function loadMonoCounter() {
-  const data = await fs.readFile("./CSV/ab.csv", "binary");
-  return Buffer.from(data);
+const csvtojson = require("csvtojson");
+const OSpoint = require("ospoint");
+
+const stat = util.promisify(fs.stat);
+const readdir = util.promisify(fs.readdir);
+
+async function callStat() {
+  const stats = await stat(".");
+  console.log(`This directory is owned by ${stats.uid}`);
 }
+fs.readFileAsync = util.promisify(fs.readFile);
 
-// const fs = require('fs')
-// var parse = require('csv-parse')
-// fs.readFile(inputPath, function (err, fileData) {
-//   parse(fileData, {columns: false, trim: true}, function(err, rows) {
-//     // Your CSV data is in an array of arrys passed to this callback as rows.
-//   })
-// })
-
-const data = [];
-
-const csvHeader = [
-  "Postcode",
+const headers = [
+  "postcode",
   "Positional_quality_indicator",
-  "Eastings",
-  "Northings",
+  "eastings",
+  "northings",
   "Country_code",
   "NHS_regional_HA_code",
   "NHS_HA_code",
@@ -31,8 +28,29 @@ const csvHeader = [
   "Admin_ward_code",
 ];
 
-fs.createReadStream("./CSV/ab.csv")
-  .pipe(csv.parse({ headers: csvHeader }))
-  .on("error", (error) => console.error(error))
-  .on("data", (row) => data.push(row))
-  .on("end", () => console.log(data));
+async function main() {
+  const fileNames = await readdir("./CSV");
+  const jsonArr = fileNames.map(async (name) => {
+    // console.log(name);
+    return await getJsonFromFile(`./CSV/${name}`);
+  });
+
+  const json2D = await Promise.all(jsonArr);
+
+  console.log(json2D.flat());
+}
+
+async function getJsonFromFile(fileName) {
+  const addresses = await csvtojson({ headers }).fromFile(fileName);
+
+  return addresses.map(({ postcode, eastings, northings }) => {
+    const { latitude, longitude } = new OSpoint(northings, eastings).toWGS84();
+    return {
+      postalCode: postcode,
+      lat: latitude,
+      lon: longitude,
+    };
+  });
+}
+
+main();
