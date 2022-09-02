@@ -84,11 +84,11 @@ async function getJsonFromFile(fileName) {
 
 function transformAddress(address) {
   return {
-      postalCode: address.postalCode,
-      location: {
-        lat: address.lat,
-        lon: address.lon,
-      },
+    postalCode: address.postalCode,
+    location: {
+      lat: address.lat,
+      lon: address.lon,
+    },
   };
 }
 
@@ -121,6 +121,17 @@ function generateCreditScore() {
   return getRandomInt(0, 999);
 }
 
+function getSubSet(arr) {
+  const perChunk = 5000
+  const partitioned = arr.reduce((all, one, i) => {
+    const ch = Math.floor(i % perChunk);
+    all[ch] = [].concat(all[ch] || [], one);
+    return all;
+  }, []);
+
+  return partitioned;
+}
+
 async function writeToFile(filename, content) {
   return await writeFile(filename, JSON.stringify(content, null, 2));
 }
@@ -138,7 +149,7 @@ async function main() {
   const addresses = latLons.map(transformAddress);
 
   const fullObjs = addresses.map((address) => ({
-    address ,
+    address,
     property: generateProperty(),
     fuels: generateFuel(),
     meterType: generateMeterType(),
@@ -147,14 +158,16 @@ async function main() {
 
   console.log("writing to file...");
 
-  await writeFile("./mock-data.json", JSON.stringify(fullObjs, null, 2));
-  
+  const partitioned = getSubSet(fullObjs).flat()
+
+  await writeFile("./mock-data-5000-per-batch.json", JSON.stringify(partitioned, null, 2));
+
   // for (let i = 0; i< fullObjs.length; i++) {
   //   const obj = fullObjs[i]
   //   console.log(i);
   //   await writeToFile(`./results/${i}.json`, obj)
   // }
-  
+
   // await fullObjs.forEach(async (obj, i) => await writeToFile(`./results/${i}.json`, obj))
 
   // fullObjs.forEach(console.log)
